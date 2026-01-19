@@ -1,0 +1,22 @@
+{
+  "name": "nexus",
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "clean": "rm -rf */dist */node_modules"
+  },
+  "private": true,
+  "workspaces": [
+    "api-gateway",
+    "auth-service",
+    "email-service",
+    "order-service",
+    "payment-service",
+    "product-service",
+    "shared",
+    "user-service"
+  ],
+  "dependencies": {
+    "all": "^0.0.0"
+  }
+}
