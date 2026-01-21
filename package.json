@@ -1,20 +1,16 @@
 {
-  "name": "nexus",
+  "name": "nexus-monorepo",
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "clean": "rm -rf */dist */node_modules"
+    "clean": "rm -rf */dist */node_modules",
+    "install:shared": "npm install --workspace=@nexus/shared",
+    "build:shared": "npm run build --workspace=@nexus/shared"
   },
   "private": true,
   "workspaces": [
-    "api-gateway",
-    "auth-service",
-    "email-service",
-    "order-service",
-    "payment-service",
-    "product-service",
-    "shared",
-    "user-service"
+    "services/*",
+    "shared"
   ],
   "dependencies": {
     "all": "^0.0.0"
