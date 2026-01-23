@@ -19,6 +19,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@confluentinc/kafka-javascript": "file:../node_modules/@confluentinc/kafka-javascript",
+    "@confluentinc/schemaregistry": "file:../node_modules/@confluentinc/schemaregistry",
     "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.3",
     "ms": "^2.1.3",

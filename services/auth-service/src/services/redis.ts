@@ -15,7 +15,7 @@ class RedisService {
     await serviceInstance.client.connect();
     return serviceInstance;
   }
-  isBlacklisted = async (token: string, access: boolean): Promise<boolean> => {
+  isTokenBlacklisted = async (token: string, access: boolean): Promise<boolean> => {
     let format: string;
     if (access) {
       format = `accessBlacklist:${token}`;
@@ -27,7 +27,7 @@ class RedisService {
   };
   setTokenBlacklisted = async (
     token: string,
-    exp: any,
+    exp: number,
     access: boolean
   ): Promise<void> => {
     let format: string;
@@ -37,8 +37,28 @@ class RedisService {
       format = `refreshBlacklist:${token}`;
     }
     await this.client.set(format, "1", {
-      expiration: exp,
+      expiration: {
+        type: "EX",
+        value: exp,
+      },
     });
+  };
+  setPasswordRecoveryCode = async (
+    userId: string,
+    code: number
+  ): Promise<void> => {
+    const format: string = `passwordRec:${userId}`;
+    await this.client.set(format, code, {
+      expiration: {
+        type: "EX",
+        value: 600,
+      },
+    });
+  };
+  getPasswordRecoveryCode = async (userId: string): Promise<number | null> => {
+    const format: string = `passwordRec:${userId}`;
+    const code: number | null = Number(await this.client.get(format));
+    return code;
   };
 }
 

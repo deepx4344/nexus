@@ -8,3 +8,4 @@ export * from "./utils/index.js";
 export * from "./utils/jwt.js";
 export * from "./utils/logger.js";
 export * from "./utils/minorUtils.js";
+export * from "./services/kafka.js"

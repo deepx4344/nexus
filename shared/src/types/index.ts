@@ -1,5 +1,6 @@
 import type { Logger } from "pino";
 import type { HttpLogger } from "pino-http";
+import type { KafkaTopicToSchemaMapping } from "../utils/index.js";
 
 export interface ApiResponseInput {
   success: boolean;
@@ -48,3 +49,44 @@ export interface LoggerReturn {
   logger: Logger;
   httpMiddleware: HttpLogger;
 }
+export const registerSchema = JSON.stringify({
+  type: "record",
+  name: "user-registered",
+  namespace: "com.auth.events",
+  fields: [
+    { name: "authId", type: "string" },
+    { name: "email", type: "string" },
+    { name: "firstname", type: "string" },
+    { name: "lastname", type: "string" },
+    { name: "avatarUrl", type: "string" },
+    { name: "phone", type: "string" },
+    { name: "currency", type: "string" },
+    { name: "language", type: "string" },
+    { name: "label", type: "string" },
+    { name: "street", type: "string" },
+    { name: "city", type: "string" },
+    { name: "state", type: "string" },
+    { name: "postalCode", type: "number" },
+    { name: "country", type: "string" },
+  ],
+});
+
+
+
+export interface UserRegistationInterface {
+  authId:string;
+  email:string;
+  firstname:string;
+  lastname:string;
+  avatarUrl:string;
+  phone:string;
+  currency:string;
+  language:string;
+  label:string;
+  street:string;
+  city:string;
+  state:string;
+  postalCode:number;
+  country:string;
+}
+

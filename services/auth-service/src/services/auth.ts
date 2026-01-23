@@ -3,11 +3,11 @@ import bcrypt from "bcrypt";
 import processConfig from "../configs/env.js";
 import Users from "../models/auth.model.js";
 import { createServiceError } from "@nexus/shared";
-import { JwtService } from "@nexus/shared";
+import { JwtService, generateRandomCodeWithGivenLength } from "@nexus/shared";
 import type { JWTPayload, Tokens } from "@nexus/shared";
 import redisService from "./redis.js";
 import { logger } from "../configs/logger.js";
-
+import kafkaServices from "./kafka.js";
 
 class AuthService {
   private readonly accessSecret: string = processConfig.JWTs.ACCESS.SECRET!;
@@ -18,26 +18,31 @@ class AuthService {
   private readonly bcryptRounds: number = Number(processConfig.BCRYPTROUNDS);
   private readonly verificationSecret: string =
     processConfig.JWTs.VERIFICATION.SECRET!;
-  private jwt = new JwtService(logger)
+  private jwt = new JwtService(logger);
+  private hashPassword = async (password: string): Promise<string> => {
+    return await bcrypt.hash(password, this.bcryptRounds);
+  };
   register = async (
     email: string,
-    name: string,
-    password: string
+    password: string,
+    others: any
   ): Promise<void> => {
     const exists: boolean = !!(await Users.exists({ email: email }));
     if (exists) {
       throw createServiceError("User already exists", 409);
     }
-    const hashedPassword: string = await bcrypt.hash(
-      password,
-      this.bcryptRounds
-    );
+    const hashedPassword: string = await this.hashPassword(password);
     const user = new Users({
-      name: name,
       email: email,
       password: hashedPassword,
     });
-    await user.save();
+    const savedUser = await user.save();
+    const dataTosend = {
+      authId: savedUser.id,
+      email: email,
+      ...others,
+    };
+    await kafkaServices.produceUserRegistrationMessage(dataTosend)
   };
   login = async (email: string, password: string): Promise<Tokens> => {
     const user = await Users.findOne({ email: email }).select("+password");
@@ -79,14 +84,24 @@ class AuthService {
     return tokens;
   };
   verifyEmail = async (token: string): Promise<void> => {
-    await this.jwt.verifyToken(token, this.verificationSecret,);
+    const user = await this.jwt.verifyToken(token, this.verificationSecret);
+    await Users.findByIdAndUpdate(user.id, {
+      isVerified: true,
+    });
   };
   refresh = async (token: string): Promise<Tokens> => {
+    const blacklisted: boolean = await redisService.isTokenBlacklisted(
+      token,
+      false
+    );
+    if (blacklisted) {
+      throw createServiceError("Invalid Refresh Token", 401);
+    }
     const data = await this.jwt.verifyToken(token, this.refreshSecret);
     const newAccessToken: string = await this.jwt.generateToken(
       data,
       this.accessSecret,
-      this.accessSecretDuration,
+      this.accessSecretDuration
     );
     const tokens: Tokens = {
       accessToken: newAccessToken,
@@ -116,6 +131,27 @@ class AuthService {
       ),
     ];
     await Promise.all(unresolvedInvalidatingTokens);
+  };
+  initiatePasswordChange = async (userId: string): Promise<void> => {
+    const code: number = generateRandomCodeWithGivenLength(8);
+    await redisService.setPasswordRecoveryCode(userId, code);
+    return;
+  };
+  confirmPasswordResetCode = async (
+    userId: string,
+    code: number
+  ): Promise<void> => {
+    const codeReceivedIsEqual: boolean =
+      (await redisService.getPasswordRecoveryCode(userId)) === code;
+    if (!codeReceivedIsEqual) {
+      throw createServiceError("Invalid Code", 422);
+    }
+  };
+  changePassword = async (userId: string, password: string): Promise<void> => {
+    const hashedPassword: string = await this.hashPassword(password);
+    await Users.findByIdAndUpdate(userId, {
+      password: hashedPassword,
+    });
   };
 }
 

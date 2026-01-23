@@ -10,7 +10,6 @@ import connectToKafka from "./configs/kafka.js";
 const PORT: number = Number(processConfig.PORT);
 const validate = new EnvValidator(logger);
 
-
 validate.validateConfig(processConfig).then(() => {
   logger.info("All Env variables configured correctly");
   connectToKafka().then(() => {

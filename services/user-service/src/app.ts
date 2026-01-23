@@ -1,6 +1,6 @@
 import express, { type Express } from "express";
 
-import router from "./routes/auth.js";
+// import router from "./routes/auth.js";
 import { errorMiddleware } from "@nexus/shared";
 
 const app: Express = express();
@@ -8,7 +8,7 @@ const app: Express = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/auth", router);
+// app.use("/auth", router);
 
 app.use(errorMiddleware);
 export default app;

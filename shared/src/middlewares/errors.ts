@@ -1,9 +1,9 @@
 import { ServiceError } from "../types/index.js";
-import { failureDataFormat } from "../utils/minorUtils.js";
+import { type ApiResponseInput } from "../types/index.js";
 import { createAPIResponse } from "../utils/index.js";
 import type { Request, Response, NextFunction } from "express";
 
-export const errormiddleWare = (
+export const errorMiddleware = (
   err: unknown,
   req: Request,
   res: Response,
@@ -20,6 +20,7 @@ export const errormiddleWare = (
       403: "Unauthorized",
       404: "Not Found",
       409: "Conflict",
+      422: "Unprocessable Entity",
       502: "Bad Gateway",
       503: "Service Error",
     };
@@ -32,8 +33,10 @@ export const errormiddleWare = (
   } else {
     console.error(err);
   }
-  const apiResponse = failureDataFormat;
-  apiResponse.message = message;
+  const apiResponse: ApiResponseInput = {
+    success: false,
+    message: message,
+  };
 
   return res.status(statusCode).json(createAPIResponse(apiResponse));
 };
