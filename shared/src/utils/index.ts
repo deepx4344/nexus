@@ -26,3 +26,11 @@ export const KafkaTopicToInterfaceMapping = {
   "user-registered": {} as UserRegistationInterface,
 };
 export const allTopicsType = Object.keys(KafkaTopicToSchemaMapping);
+
+export const slugify = (input: string): string => {
+  const slug = input
+    .toLowerCase()
+    .replace(/[^a-z0-9_ -]/g, "-")
+    .replace(/[ _-]+/g, "-");
+  return slug.replace(/^-+|-+$/g, "");
+};

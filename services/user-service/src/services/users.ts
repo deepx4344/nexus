@@ -2,7 +2,7 @@ import type { UserRegistationInterface } from "@nexus/shared";
 import User from "../models/user.model.js";
 
 class UserService {
-  create = async (data: UserRegistationInterface): Promise<void> => {
+  create = async (data:UserRegistationInterface): Promise<void> => {
     const exists: boolean = !!(await User.exists({ authId: data.authId }));
     if (exists) return;
     const user = new User({

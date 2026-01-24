@@ -1,6 +1,5 @@
 import {
-  UnifiedKafkaService,
-  type UserRegistationInterface,
+  UnifiedKafkaService
 } from "@nexus/shared";
 import processConfig from "../configs/env.js";
 import { logger } from "../configs/logger.js";
@@ -22,14 +21,6 @@ class KafkaServices extends UnifiedKafkaService {
   };
   endConnection = async (): Promise<void> => {
     await super.disconnect();
-  };
-  produceUserRegistrationMessage = async (
-    data: UserRegistationInterface
-  ): Promise<void> => {
-    await this.produceMessage("user-registered", data);
-  };
-  consumeUserRegistrationMessage = async (): Promise<void> => {
-    this.consumeMessage("");
   };
 }
 const kafkaServices = new KafkaServices(

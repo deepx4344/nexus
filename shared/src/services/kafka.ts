@@ -11,7 +11,6 @@ import {
   KafkaTopicToInterfaceMapping,
   KafkaTopicToSchemaMapping,
 } from "../utils/index.js";
-import type { UserRegistationInterface } from "../types/index.js";
 
 const { Kafka } = KafkaJS;
 
@@ -67,7 +66,7 @@ export class UnifiedKafkaService {
     await this.consumer.disconnect();
     this.logger.info("Kafka Services disconnected");
   }
-  protected produceMessage = async (topic: string, data: UserRegistationInterface): Promise<void> => {
+  protected produceMessage = async (topic: string, data: any): Promise<void> => {
     await this.registry.register(`${topic}-value`, {
       schemaType: "AVRO",
       schema: this.mapTopicToSchema(topic),

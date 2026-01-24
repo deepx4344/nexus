@@ -15,15 +15,29 @@ export interface IProduct extends Document {
   categories: string[];
   status: "DRAFT" | "ACTIVE" | "ARCHIVED";
   images: string[];
-  
+
   variants: IProductVariant[];
-  
+
   stats: {
     averageRating: number;
     reviewCount: number;
     soldCount: number;
   };
+  flagForDelete: boolean;
 
   createdAt: Date;
   updatedAt: Date;
 }
+export interface ProductCreationDto {
+  name: string;
+  description: string;
+  basePrice: number;
+  categories: string[];
+  images: string[];
+  status?: "DRAFT" | "ACTIVE" | "ARCHIVED";
+}
+  export interface updateVariant{
+    price: number;
+    stock: number;
+    attributes: Map<string, string>;
+  }
